@@ -11,8 +11,12 @@ class Grid:
     r=math.sqrt(3)/2*R
     terrains = list('mmmhhhffffppppFFFF')
     vals = [2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12]
-    vertices = list(range(54))
-    hex_adjacency_list = {
+
+    
+    vertex_indices = list(range(54))
+    hex_indices = list(range(19))
+    hex_top_indices = [0, 1, 2, 7, 8, 9, 10, 16, 17, 18, 19, 20, 28, 29, 30, 31, 39, 40, 41, 42]
+    vertex_adjacency_list = { #Hard-coded list, but it's fine. Will never change within the scope of this project since the board from the base game will suffice (no Seafarers or anything like that)
            0:[3, 4], 
            1:[4, 5], 
            2:[5, 6], 
@@ -68,8 +72,10 @@ class Grid:
            52:[48, 49], 
            53:[49, 50]
     }
+    vertex_hex_adjacency_list = {}
     vertex_coords = []
     def __init__(self) -> None:
+        #Visual coordinates for each vertex
         Grid.vertex_coords.extend([(2*i*Grid.r + 3*Grid.r, 8 - 0.0) for i in range(3)])
         Grid.vertex_coords.extend([(2*i*Grid.r + 2*Grid.r, 8 - 0.5) for i in range(4)])
         Grid.vertex_coords.extend([(2*i*Grid.r + 2*Grid.r, 8 - 1.5) for i in range(4)])
