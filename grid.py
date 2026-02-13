@@ -123,14 +123,36 @@ class Grid:
         Grid.fig.set_size_inches(12, 8)
 
         Grid.draw_all_rows(hexes)
-
+        for index in Grid.hex_top_indices:
+            num_vertices = [] #Vertices along the top, upper middle, lower middle, and bottom of the row
+            match index:
+                case n if 0 <= n < 7:
+                    num_vertices=[3, 4, 4, 3]
+                    break
+                case n if 7 <= n < 16:
+                    num_vertices=[]
+                    break
+                case n if 16 <= n < 28:
+                    num_vertices=5
+                    break
+                case n if 0 <= n < 39:
+                    num_vertices=4
+                    break
+                case n if 39 <= n < 54:
+                    num_vertices=3
+                    break
+                case _:
+                    break
+                
+        adjacent_vertices = [index, ]
+        adjacent_vertices.append(index)
 
        
 
         
 
         
-        for i, (x, y) in zip(Grid.vertices, Grid.vertex_coords):
+        for i, (x, y) in zip(Grid.vertex_indices, Grid.vertex_coords):
             vertex = pplt.Circle((x, y), radius=0.25, color='red', fill=True)
             Grid.ax.add_patch(vertex)
             pplt.text(x, y, str(i), horizontalalignment='center', verticalalignment='center')
