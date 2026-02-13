@@ -7,7 +7,8 @@ import random
 class Grid:
     fig, ax = pplt.subplots()
     ax.set_axis_off()
-
+    R = 1
+    r=math.sqrt(3)/2*R
     terrains = list('mmmhhhffffppppFFFF')
     vals = [2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12]
     vertices = list(range(54))
@@ -68,18 +69,19 @@ class Grid:
            53:[49, 50]
     }
     vertex_coords = []
-    vertex_coords.extend([(2*i*r + 3*r, 8 - 0.0) for i in range(3)])
-    vertex_coords.extend([(2*i*r + 2*r, 8 - 0.5) for i in range(4)])
-    vertex_coords.extend([(2*i*r + 2*r, 8 - 1.5) for i in range(4)])
-    vertex_coords.extend([(2*i*r + 1*r, 8 - 2.0) for i in range(5)])
-    vertex_coords.extend([(2*i*r + 1*r, 8 - 3.0) for i in range(5)])
-    vertex_coords.extend([(2*i*r + 0*r, 8 - 3.5) for i in range(6)])
-    vertex_coords.extend([(2*i*r + 0*r, 8 - 4.5) for i in range(6)])
-    vertex_coords.extend([(2*i*r + 1*r, 8 - 5.0) for i in range(5)])
-    vertex_coords.extend([(2*i*r + 1*r, 8 - 6.0) for i in range(5)])
-    vertex_coords.extend([(2*i*r + 2*r, 8 - 6.5) for i in range(4)])
-    vertex_coords.extend([(2*i*r + 2*r, 8 - 7.5) for i in range(4)])
-    vertex_coords.extend([(2*i*r + 3*r, 8 - 8.0) for i in range(3)])
+    def __init__(self) -> None:
+        Grid.vertex_coords.extend([(2*i*Grid.r + 3*Grid.r, 8 - 0.0) for i in range(3)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 2*Grid.r, 8 - 0.5) for i in range(4)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 2*Grid.r, 8 - 1.5) for i in range(4)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 1*Grid.r, 8 - 2.0) for i in range(5)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 1*Grid.r, 8 - 3.0) for i in range(5)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 0*Grid.r, 8 - 3.5) for i in range(6)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 0*Grid.r, 8 - 4.5) for i in range(6)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 1*Grid.r, 8 - 5.0) for i in range(5)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 1*Grid.r, 8 - 6.0) for i in range(5)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 2*Grid.r, 8 - 6.5) for i in range(4)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 2*Grid.r, 8 - 7.5) for i in range(4)])
+        Grid.vertex_coords.extend([(2*i*Grid.r + 3*Grid.r, 8 - 8.0) for i in range(3)])
     
 
     def draw_row(x_i, y, hexes: list[hex.Hex], ax=ax, R=1):
@@ -107,7 +109,7 @@ class Grid:
         hexes.append(hex.Hex(0, 'd'))                                                   #Add desert hex
         random.shuffle(hexes)                                                           #Randomize the board. I have not implemented the "standard" setup
 
-        R = 1
+        R = Grid.R
         r=math.sqrt(3)/2*R
         Grid.ax.set_xlim(0 - 0.5, 15*r + 0.5)
         Grid.ax.set_ylim(0 - 0.5, 8*R + 0.5)
