@@ -1,7 +1,7 @@
 import matplotlib.pyplot as pplt
 import matplotlib.patches as patches
 import math
-import hex
+import hex as h
 import random
 
 class Grid:
@@ -15,7 +15,7 @@ class Grid:
     
     vertex_indices = list(range(54))
     hex_indices = list(range(19))
-    hex_top_indices = [0, 1, 2, 7, 8, 9, 10, 16, 17, 18, 19, 20, 28, 29, 30, 31, 39, 40, 41, 42]
+    hex_top_indices = [0, 1, 2, 7, 8, 9, 10, 16, 17, 18, 19, 20, 28, 29, 30, 31, 39, 40, 41]
     vertex_adjacency_list = { #Hard-coded list, but it's fine. Will never change within the scope of this project since the board from the base game will suffice (no Seafarers or anything like that)
            0:[3, 4], 
            1:[4, 5], 
@@ -72,7 +72,7 @@ class Grid:
            52:[48, 49], 
            53:[49, 50]
     }
-    vertex_hex_adjacency_list = {}
+    vertex_hex_adjacency_list: dict[int, list[h.Hex]] = {}
     vertex_coords = []
     def __init__(self) -> None:
         #Visual coordinates for each vertex
@@ -90,7 +90,7 @@ class Grid:
         Grid.vertex_coords.extend([(2*i*Grid.r + 3*Grid.r, 8 - 8.0) for i in range(3)])
     
 
-    def draw_row(x_i, y, hexes: list[hex.Hex], ax=ax, R=1):
+    def draw_row(x_i, y, hexes: list[h.Hex], ax=ax, R=1):
         r=math.sqrt(3)/2*R
         x = x_i
         for hex in hexes:
@@ -111,43 +111,49 @@ class Grid:
     def draw_new_map(players, randomize=True):
         terrain_list = random.sample(Grid.terrains, len(Grid.terrains))
         val_list = random.sample(Grid.vals, len(Grid.vals))
-        hexes = [hex.Hex(val, terrain) for val, terrain in zip(val_list, terrain_list)] #Add terrain hexes
-        hexes.append(hex.Hex(0, 'd'))                                                   #Add desert hex
+        hexes = [h.Hex(val, terrain) for val, terrain in zip(val_list, terrain_list)] #Add terrain hexes
+        hexes.append(h.Hex(0, 'd'))                                                   #Add desert hex
         random.shuffle(hexes)                                                           #Randomize the board. I have not implemented the "standard" setup
 
         R = Grid.R
         r=math.sqrt(3)/2*R
-        Grid.ax.set_xlim(0 - 0.5, 15*r + 0.5)
+        Grid.ax.set_xlim(0 - 0.5, 20*r + 0.5)
         Grid.ax.set_ylim(0 - 0.5, 8*R + 0.5)
         Grid.fig.set_facecolor("blue")
-        Grid.fig.set_size_inches(12, 8)
+        Grid.fig.set_size_inches(16, 8)
 
         Grid.draw_all_rows(hexes)
-        for index in Grid.hex_top_indices:
-            num_vertices = [] #Vertices along the top, upper middle, lower middle, and bottom of the row
+        for i in range(len(Grid.hex_top_indices)):
+            num_vertices = [] #Distances between 0-1, 3-4, and 5-6 for the row
+            index = Grid.hex_top_indices[i]
             match index:
                 case n if 0 <= n < 7:
-                    num_vertices=[3, 4, 4, 3]
-                    break
+                    num_vertices=[3, 3, 4]
                 case n if 7 <= n < 16:
-                    num_vertices=[]
-                    break
+                    num_vertices=[4, 4, 5]
                 case n if 16 <= n < 28:
-                    num_vertices=5
-                    break
+                    num_vertices=[5, 5, 5]
                 case n if 0 <= n < 39:
-                    num_vertices=4
-                    break
+                    num_vertices=[5, 4, 4]
                 case n if 39 <= n < 54:
-                    num_vertices=3
-                    break
-                case _:
-                    break
+                    num_vertices=[4, 3, 3]
                 
-        adjacent_vertices = [index, ]
-        adjacent_vertices.append(index)
+            adjacent_vertices = [index, 
+                                index + num_vertices[0], 
+                                index + num_vertices[0] + 1,
+                                index + num_vertices[0] + 1 + num_vertices[1],
+                                index + num_vertices[0] + 1 + num_vertices[1] + 1,
+                                index + num_vertices[0] + 1 + num_vertices[1] + 1 + num_vertices[2]]
+            for vertex in adjacent_vertices:
+                v_list = Grid.vertex_hex_adjacency_list.get(vertex)
+                if v_list is not None:
+                    v_list.append(hexes[i])
+                    Grid.vertex_hex_adjacency_list[vertex] = v_list
+                else:
+                    
+                    Grid.vertex_hex_adjacency_list[vertex] = [hexes[i]]
 
-       
+            
 
         
 
@@ -158,6 +164,18 @@ class Grid:
             pplt.text(x, y, str(i), horizontalalignment='center', verticalalignment='center')
 
 
+        text = ""
+
+        for vertex, hex_list in Grid.vertex_hex_adjacency_list.items():
+            out_text = f"Vertex {vertex}: "
+            for hex in hex_list:
+                out_text += f"{hex.terrain} hex, "
+            out_text += f"\n"
+            text += out_text
+
+        pplt.text(10, 8, text, 
+         fontsize=12, 
+         bbox=dict(facecolor='yellow', alpha=0.5, boxstyle='round,pad=0.5'), verticalalignment='top')
 
 
 
