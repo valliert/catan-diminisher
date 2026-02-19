@@ -12,7 +12,8 @@ class Grid:
     terrains = list('mmmhhhffffppppFFFF')
     vals = [2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12]
 
-    
+    player_owned_vertices = ["white"] * 54
+    owned_vertices = [0] * 54
     vertex_indices = list(range(54))
     hex_indices = list(range(19))
     hex_top_indices = [0, 1, 2, 7, 8, 9, 10, 16, 17, 18, 19, 20, 28, 29, 30, 31, 39, 40, 41]
@@ -105,15 +106,16 @@ class Grid:
         Grid.draw_row(2, 2.5, hexes[12:16])
         Grid.draw_row(3, 1, hexes[16:19])
         
-
-    
-
-    def draw_new_map(players, randomize=True):
+    def get_new_hexes():
         terrain_list = random.sample(Grid.terrains, len(Grid.terrains))
         val_list = random.sample(Grid.vals, len(Grid.vals))
         hexes = [h.Hex(val, terrain) for val, terrain in zip(val_list, terrain_list)] #Add terrain hexes
         hexes.append(h.Hex(0, 'd'))                                                   #Add desert hex
-        random.shuffle(hexes)                                                           #Randomize the board. I have not implemented the "standard" setup
+        random.shuffle(hexes) #Randomize the board. I have not implemented the "standard" setup
+        return hexes
+    
+
+    def draw_map(self, players, hexes, randomize=True):#TODO: PASS IN PLAYERS HERE                                                            
 
         R = Grid.R
         r=math.sqrt(3)/2*R
@@ -122,9 +124,9 @@ class Grid:
         Grid.fig.set_facecolor("blue")
         Grid.fig.set_size_inches(16, 8)
 
-        Grid.draw_all_rows(hexes)
-        for i in range(len(Grid.hex_top_indices)):
-            num_vertices = [] #Distances between 0-1, 3-4, and 5-6 for the row
+        Grid.draw_all_rows(hexes=hexes)
+        for i in range(len(Grid.hex_top_indices)): #Establish Vertex-Hex adjacencies
+            num_vertices = [] #Distances between vertices 0-1, 3-4, and 5-6 for the row
             index = Grid.hex_top_indices[i]
             match index:
                 case n if 0 <= n < 7:
@@ -150,7 +152,6 @@ class Grid:
                     v_list.append(hexes[i])
                     Grid.vertex_hex_adjacency_list[vertex] = v_list
                 else:
-                    
                     Grid.vertex_hex_adjacency_list[vertex] = [hexes[i]]
 
             
@@ -159,23 +160,26 @@ class Grid:
 
         
         for i, (x, y) in zip(Grid.vertex_indices, Grid.vertex_coords):
-            vertex = pplt.Circle((x, y), radius=0.25, color='red', fill=True)
-            Grid.ax.add_patch(vertex)
+            ring = pplt.Circle((x, y), radius=0.25, facecolor=Grid.player_owned_vertices[i], edgecolor="black", fill=True)
+            fill = pplt.Circle((x, y), radius=0.16, facecolor=Grid.player_owned_vertices[i] if Grid.owned_vertices[i] else "white", fill=True)
+            Grid.ax.add_patch(ring)
+            Grid.ax.add_patch(fill)
             pplt.text(x, y, str(i), horizontalalignment='center', verticalalignment='center')
 
 
+
+        #INFO TEXT SETUP
         text = ""
 
-        for vertex, hex_list in Grid.vertex_hex_adjacency_list.items():
-            out_text = f"Vertex {vertex}: "
+        for vertex, hex_list in sorted(Grid.vertex_hex_adjacency_list.items(), key = (lambda pair: sum(hex.pips for hex in pair[1])), reverse=True)[:32]:
+            pips = 0
             for hex in hex_list:
-                out_text += f"{hex.terrain} hex, "
-            out_text += f"\n"
-            text += out_text
+                pips += hex.pips
+            text += f"Vertex {vertex}: {pips} total pips\n"
 
-        pplt.text(10, 8, text, 
-         fontsize=12, 
-         bbox=dict(facecolor='yellow', alpha=0.5, boxstyle='round,pad=0.5'), verticalalignment='top')
+        pplt.text(10, 9.5, text, 
+         fontsize=8, 
+         bbox=dict(facecolor='white', alpha=1, boxstyle='round,pad=0.5'), verticalalignment='top')
 
 
 
@@ -183,4 +187,4 @@ class Grid:
        
 
 
-Grid().draw_new_map(None)
+Grid().draw_map(None, Grid.get_new_hexes())
