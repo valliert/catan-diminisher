@@ -1,6 +1,8 @@
 import grid as g
 import player as p
 import hex as h
+import matplotlib.pyplot as pplt
+import time
 
 grid = g.Grid()
 hexes = grid.get_new_hexes()
@@ -16,6 +18,27 @@ def claim_vertex(player: p.Player, vertex: int):
 
 for player in players:
     max = None
+    max_vert = None
     for i in range(len(grid.owned_vertices)):
         if grid.owned_vertices[i] == 0:
-            value = player.valuation_function()
+            value = player.valuation_function(grid.vertex_hex_adjacency_list[i])
+            if max is None or value > max:
+                max = value
+                max_vert = i
+    claim_vertex(player, max_vert)
+    grid.draw_map(hexes)
+    pplt.pause(1)
+    
+for player in reversed(players):
+    max = None
+    max_vert = None
+    for i in range(len(grid.owned_vertices)):
+        if grid.owned_vertices[i] == 0:
+            value = player.valuation_function(grid.vertex_hex_adjacency_list[i])
+            if max is None or value > max:
+                max = value
+                max_vert = i
+    claim_vertex(player, max_vert)
+    grid.draw_map(hexes)
+    pplt.pause(1)
+pplt.show()
