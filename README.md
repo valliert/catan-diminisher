@@ -1,6 +1,6 @@
 # catan-diminisher
 Repo for AGT final project
-There are three files you can run.
+There are (will be) three files you can run.
 
 * grid.py
   - Run this to see a randomly generated Catan grid
