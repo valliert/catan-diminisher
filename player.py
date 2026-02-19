@@ -1,3 +1,4 @@
+from typing import Callable
 import hex as h
 class Player:
     def default_valuation(adjacent_hexes: list[h.Hex]):
@@ -6,6 +7,6 @@ class Player:
             value += hex.pips
         return value
     def __init__(self, color) -> None:
-        self.valuation_function = Player.default_valuation
+        self.valuation_function: Callable[[int], int] = Player.default_valuation
         self.color = color
         self.owned_pair: tuple[int, int]
