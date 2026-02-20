@@ -73,11 +73,12 @@ class Grid:
     
     vertex_coords = []
     def __init__(self) -> None:
+        self.info_text: pplt.Text = None
         self.fig, self.ax = pplt.subplots()
         self.ax.set_axis_off()
         self.player_owned_vertices = ["white"] * 54 #Owner of each index
         self.owned_vertices = [0] * 54 #If index has been assigned. !White and 0 signifies 'proposed but not yet assigned'
-        self.vertex_hex_adjacency_list: dict[int, list[h.Hex]] = {}
+        self.vertex_hex_adjacency_list: dict[int, list[h.Hex]] = {-1: []}
         
         #Visual coordinates for each vertex
         Grid.vertex_coords.extend([(2*i*Grid.r + 3*Grid.r, 8 - 0.0) for i in range(3)])
@@ -168,17 +169,23 @@ class Grid:
 
 
         #INFO TEXT SETUP
-        text = ""
-
-        for vertex, hex_list in sorted(self.vertex_hex_adjacency_list.items(), key = (lambda pair: sum(hex.pips for hex in pair[1])), reverse=True)[:32]:
-            pips = 0
-            for hex in hex_list:
-                pips += hex.pips
-            text += f"Vertex {vertex}: {pips} total pips\n"
-
-        pplt.text(10, 9.5, text, 
-         fontsize=8, 
-         bbox=dict(facecolor='white', alpha=1, boxstyle='round,pad=0.5'), verticalalignment='top')
+    def add_text(self, text: str, overwrite=False):
+        if self.info_text is None:
+            self.info_text = pplt.text(10, 9.5, text, 
+                fontsize=8, 
+                bbox=dict(facecolor='white', alpha=1, boxstyle='round,pad=0.5'), verticalalignment='top')
+        elif overwrite:
+            self.info_text.remove()
+            self.info_text = pplt.text(10, 9.5, text, 
+                fontsize=8, 
+                bbox=dict(facecolor='white', alpha=1, boxstyle='round,pad=0.5'), verticalalignment='top')
+        else:
+            new_text = self.info_text.get_text() + "\n" + text
+            self.info_text.remove()
+            self.info_text = pplt.text(10, 9.5, new_text, 
+                fontsize=8, 
+                bbox=dict(facecolor='white', alpha=1, boxstyle='round,pad=0.5'), verticalalignment='top')
+        
 
 
         # pplt.show(block=False)

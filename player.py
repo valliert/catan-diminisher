@@ -9,4 +9,4 @@ class Player:
     def __init__(self, color) -> None:
         self.valuation_function: Callable[[int], int] = Player.default_valuation
         self.color = color
-        self.owned_pair: tuple[int, int]
+        self.owned_pair: tuple[int, int] = (-1, -1)
